@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using BusinessRulesEngine;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -25,8 +26,14 @@ namespace BusinessRuleEngine
                   .Build();
 
                 servicesProvider = BuildDi(config);
-               
-               
+                var ruleEngine = servicesProvider.GetRequiredService<RuleEngine>();
+                ruleEngine.AddRule();
+                var ids = new List<int> { 1, 2, 3, 4, 5, 6 };
+                foreach (var id in ids)
+                {
+                    var rule = ruleEngine.Rules[id];
+                    ruleEngine.Perform(rule);
+                }
             }
             catch (Exception ex)
             {
@@ -41,6 +48,8 @@ namespace BusinessRuleEngine
         private static IServiceProvider BuildDi(IConfiguration config)
         {
             return new ServiceCollection()
+                .AddTransient<RuleEngine>()
+               .AddTransient<Rule>()
                .BuildServiceProvider();
         }
     }
